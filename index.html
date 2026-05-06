@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaprware — Platform for Intentional Organizations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050510;
+    --surface: #0c0c1e;
+    --surface2: #12122a;
+    --fg: #e8e8f4;
+    --muted: #8888aa;
+    --faint: #4a4a6a;
+    --hairline: rgba(255,255,255,0.07);
+    --hairline2: rgba(255,255,255,0.12);
+    --accent: #6366f1;
+    --accent2: #8b5cf6;
+    --accent3: #06b6d4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background:var(--bg);
+    color:var(--fg);
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-weight:400;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .serif { font-family:'Instrument Serif',Georgia,serif; font-weight:400; }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; right:0; height:56px;
+    backdrop-filter:saturate(180%) blur(24px);
+    -webkit-backdrop-filter:saturate(180%) blur(24px);
+    background:rgba(5,5,16,0.75);
+    border-bottom:1px solid var(--hairline);
+    z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:0 24px;
+  }
+  nav .nav-inner {
+    width:100%; max-width:1200px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-left { display:flex; align-items:center; gap:12px; }
+  nav .logo {
+    font-family:'Instrument Serif',serif; font-style:italic;
+    font-size:22px; letter-spacing:-0.01em; color:var(--fg);
+  }
+  .badge-series {
+    font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--accent); border:1px solid rgba(99,102,241,0.4);
+    background:rgba(99,102,241,0.08); padding:3px 8px; border-radius:4px;
+  }
+  nav ul { display:flex; gap:32px; list-style:none; }
+  nav ul li { font-size:13px; color:var(--muted); cursor:pointer; transition:color 0.2s; }
+  nav ul li:hover { color:var(--fg); }
+  .nav-cta {
+    font-size:13px; font-weight:500; padding:8px 18px; border-radius:8px;
+    background:var(--accent); color:#fff; cursor:pointer;
+    transition:opacity 0.2s, box-shadow 0.2s; text-decoration:none;
+    box-shadow:0 0 20px rgba(99,102,241,0.3);
+  }
+  .nav-cta:hover { opacity:0.9; box-shadow:0 0 30px rgba(99,102,241,0.5); }
+  @media(max-width:768px){ nav ul { display:none; } }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    padding:140px 24px 100px; position:relative; overflow:hidden;
+  }
+  #hero-canvas { position:absolute; inset:0; pointer-events:none; z-index:0; }
+  .orb {
+    position:absolute; border-radius:50%; filter:blur(100px);
+    pointer-events:none; z-index:0;
+  }
+  .orb-1 {
+    width:700px; height:700px;
+    background:radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%);
+    top:-200px; left:-200px; animation:orbFloat1 18s ease-in-out infinite;
+  }
+  .orb-2 {
+    width:600px; height:600px;
+    background:radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+    bottom:-100px; right:-150px; animation:orbFloat2 22s ease-in-out infinite;
+  }
+  .orb-3 {
+    width:400px; height:400px;
+    background:radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+    top:40%; left:50%; transform:translate(-50%,-50%);
+    animation:orbFloat3 14s ease-in-out infinite;
+  }
+  @keyframes orbFloat1 {
+    0%,100%{transform:translate(0,0)} 33%{transform:translate(80px,-60px)} 66%{transform:translate(-40px,80px)}
+  }
+  @keyframes orbFloat2 {
+    0%,100%{transform:translate(0,0)} 33%{transform:translate(-60px,40px)} 66%{transform:translate(80px,-80px)}
+  }
+  @keyframes orbFloat3 {
+    0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.3)}
+  }
+  .hero > * { position:relative; z-index:1; }
+  .hero-eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--accent3); border:1px solid rgba(6,182,212,0.25);
+    background:rgba(6,182,212,0.06); padding:6px 14px; border-radius:980px;
+    margin-bottom:40px; opacity:0; animation:fadeUp 0.8s 0.3s forwards;
+  }
+  .dot {
+    width:6px; height:6px; border-radius:50%; background:var(--accent3);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+  .hero h1 {
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(52px,9vw,128px); line-height:0.95;
+    letter-spacing:-0.04em; font-weight:400; max-width:1000px;
+    opacity:0; animation:fadeUp 1s 0.6s forwards;
+  }
+  .hero h1 em {
+    font-style:italic;
+    background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .hero .sub {
+    margin-top:36px; font-size:18px; color:var(--muted);
+    max-width:580px; line-height:1.6;
+    opacity:0; animation:fadeUp 0.8s 1s forwards;
+  }
+  .hero .cta-row {
+    margin-top:52px; display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+    opacity:0; animation:fadeUp 0.8s 1.3s forwards;
+  }
+  .btn-primary {
+    font-size:14px; font-weight:500; padding:13px 28px; border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+    cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; text-decoration:none;
+    display:inline-block; box-shadow:0 0 30px rgba(99,102,241,0.4);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 0 50px rgba(99,102,241,0.6); }
+  .btn-ghost {
+    font-size:14px; font-weight:400; padding:13px 28px; border-radius:10px;
+    border:1px solid var(--hairline2); background:rgba(255,255,255,0.04); color:var(--muted);
+    cursor:pointer; transition:all 0.2s; text-decoration:none; display:inline-block;
+  }
+  .btn-ghost:hover { border-color:rgba(255,255,255,0.25); color:var(--fg); }
+  .hero-meta {
+    margin-top:64px; display:flex; gap:48px;
+    opacity:0; animation:fadeUp 0.8s 1.6s forwards;
+  }
+  .hero-stat .val { font-family:'Instrument Serif',serif; font-size:28px; letter-spacing:-0.02em; }
+  .hero-stat .key { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .hero-divider { width:1px; background:var(--hairline); align-self:stretch; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* MARQUEE */
+  .marquee-section {
+    border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+    padding:24px 0; overflow:hidden; background:rgba(255,255,255,0.015);
+  }
+  .marquee-label {
+    text-align:center; font-size:11px; color:var(--faint);
+    letter-spacing:0.12em; text-transform:uppercase; margin-bottom:20px;
+  }
+  .marquee-track {
+    display:flex; gap:72px; animation:marquee 28s linear infinite;
+    white-space:nowrap; width:max-content;
+  }
+  .marquee-track span { font-size:16px; font-weight:600; color:var(--faint); letter-spacing:-0.01em; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:20px;
+  }
+
+  /* PRODUCT */
+  .product {
+    padding:160px 24px; text-align:center;
+    background:var(--surface);
+    border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+  }
+  .product h2 {
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(40px,6vw,80px); line-height:1.05; letter-spacing:-0.03em;
+    max-width:800px; margin:0 auto 64px;
+  }
+  .product h2 em { font-style:italic; color:var(--muted); }
+  .product-frame {
+    margin:0 auto; max-width:960px; aspect-ratio:16/9;
+    border:1px solid var(--hairline2); border-radius:20px; background:var(--bg);
+    position:relative; overflow:hidden;
+    box-shadow:0 0 80px rgba(99,102,241,0.08), 0 40px 100px rgba(0,0,0,0.6);
+  }
+  .chrome-bar {
+    height:40px; background:rgba(255,255,255,0.04);
+    border-bottom:1px solid var(--hairline);
+    display:flex; align-items:center; padding:0 16px; gap:8px;
+  }
+  .chrome-dot { width:10px; height:10px; border-radius:50%; }
+  .chrome-dot:nth-child(1){background:#ff5f57} .chrome-dot:nth-child(2){background:#febc2e} .chrome-dot:nth-child(3){background:#28c840}
+  .chrome-url {
+    flex:1; margin:0 16px; height:22px; background:rgba(255,255,255,0.04);
+    border:1px solid var(--hairline); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:var(--faint); font-family:'JetBrains Mono',monospace;
+  }
+  .frame-body {
+    padding:24px; display:grid; grid-template-columns:180px 1fr;
+    gap:16px; height:calc(100% - 40px);
+  }
+  .frame-sidebar {
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline);
+    border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:8px;
+  }
+  .sidebar-item { height:28px; border-radius:6px; background:rgba(255,255,255,0.03); animation:shimmer 2.5s ease-in-out infinite; }
+  .sidebar-item:first-child { background:rgba(99,102,241,0.15); }
+  .frame-main { display:flex; flex-direction:column; gap:12px; }
+  .frame-cards-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .frame-metric {
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline); border-radius:10px; padding:14px;
+  }
+  .frame-metric .m-val { font-family:'Instrument Serif',serif; font-size:22px; color:rgba(255,255,255,0.15); }
+  .frame-metric .m-lbl { font-size:10px; color:var(--faint); margin-top:3px; }
+  .frame-card {
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline); border-radius:10px; padding:18px;
+    animation:shimmer 3s ease-in-out infinite;
+  }
+  .frame-card .card-title { width:40%; height:10px; background:rgba(255,255,255,0.06); border-radius:4px; margin-bottom:10px; }
+  .frame-card .card-line { height:7px; background:rgba(255,255,255,0.03); border-radius:4px; margin-bottom:7px; }
+  .frame-card .card-line:last-child { width:60%; }
+  @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.55} }
+  .product-caption { margin-top:28px; font-size:13px; color:var(--faint); font-family:'JetBrains Mono',monospace; }
+
+  /* CAPABILITIES */
+  .capabilities { padding:160px 24px; background:var(--bg); }
+  .capabilities .inner { max-width:1200px; margin:0 auto; }
+  .capabilities .header { max-width:700px; margin-bottom:80px; }
+  .capabilities h2 { font-family:'Instrument Serif',serif; font-size:clamp(40px,5vw,72px); line-height:1.05; letter-spacing:-0.03em; }
+  .capabilities h2 em { font-style:italic; color:var(--muted); }
+  .capabilities .sub { margin-top:24px; font-size:17px; color:var(--muted); line-height:1.6; max-width:560px; }
+  .cap-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--hairline); }
+  @media(max-width:900px){ .cap-grid{grid-template-columns:1fr} }
+  .cap-item {
+    background:var(--bg); padding:48px 40px;
+    transition:background 0.3s; position:relative;
+  }
+  .cap-item::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(99,102,241,0.06),transparent);
+    opacity:0; transition:opacity 0.3s;
+  }
+  .cap-item:hover { background:var(--surface); }
+  .cap-item:hover::after { opacity:1; }
+  .cap-icon {
+    width:44px; height:44px; border-radius:12px;
+    background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; margin-bottom:24px;
+  }
+  .cap-item h3 { font-size:18px; font-weight:600; margin-bottom:12px; letter-spacing:-0.01em; }
+  .cap-item p { font-size:15px; color:var(--muted); line-height:1.6; }
+
+  /* METRICS */
+  .metrics {
+    background:var(--surface); border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+    padding:160px 24px; text-align:center; position:relative; overflow:hidden;
+  }
+  .metrics::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at 20% 50%,rgba(99,102,241,0.08) 0%,transparent 60%),
+               radial-gradient(ellipse at 80% 50%,rgba(139,92,246,0.06) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .metrics .inner { position:relative; max-width:1200px; margin:0 auto; }
+  .metrics h2 {
+    font-family:'Instrument Serif',serif;
+    font-size:clamp(40px,6vw,80px); line-height:1.05; letter-spacing:-0.03em;
+    max-width:800px; margin:16px auto 80px;
+  }
+  .metrics h2 em { font-style:italic; color:var(--muted); }
+  .metrics-grid {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:2px; background:var(--hairline);
+    border:1px solid var(--hairline); border-radius:20px; overflow:hidden;
+  }
+  @media(max-width:768px){ .metrics-grid{grid-template-columns:repeat(2,1fr)} }
+  .metric-cell { background:var(--surface); padding:52px 36px; text-align:left; }
+  .metric-cell .m-num {
+    font-family:'Instrument Serif',serif; font-size:56px; line-height:1; letter-spacing:-0.03em;
+    background:linear-gradient(135deg,#fff 0%,var(--muted) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    margin-bottom:12px;
+  }
+  .metric-cell .m-lbl { font-size:11px; color:var(--faint); letter-spacing:0.08em; text-transform:uppercase; font-weight:500; }
+  .metric-cell .m-note { font-size:11px; color:var(--faint); margin-top:8px; font-style:italic; }
+
+  /* HOW IT WORKS */
+  .how { padding:160px 24px; background:var(--bg); }
+  .how .inner { max-width:1200px; margin:0 auto; }
+  .how .header { text-align:center; max-width:700px; margin:0 auto 100px; }
+  .how h2 { font-family:'Instrument Serif',serif; font-size:clamp(40px,5vw,72px); line-height:1.05; letter-spacing:-0.03em; margin-top:16px; }
+  .how h2 em { font-style:italic; color:var(--muted); }
+  .how .sub { margin-top:20px; font-size:17px; color:var(--muted); line-height:1.6; }
+  .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--hairline); }
+  @media(max-width:900px){ .steps{grid-template-columns:1fr} }
+  .step { background:var(--bg); padding:52px 44px; }
+  .step-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:0.1em; margin-bottom:20px; }
+  .step h3 { font-family:'Instrument Serif',serif; font-size:32px; letter-spacing:-0.02em; margin-bottom:16px; line-height:1.1; }
+  .step p { font-size:15px; color:var(--muted); line-height:1.65; }
+
+  /* AI */
+  .ai-section {
+    padding:180px 24px; background:var(--surface);
+    border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .ai-section::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center,rgba(99,102,241,0.1) 0%,transparent 65%);
+    pointer-events:none;
+  }
+  .ai-section .inner { position:relative; }
+  .ai-tag {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--accent2); border:1px solid rgba(139,92,246,0.3);
+    background:rgba(139,92,246,0.07); padding:6px 14px; border-radius:980px; margin-bottom:32px;
+  }
+  .ai-section h2 {
+    font-family:'Instrument Serif',serif; font-size:clamp(44px,8vw,110px);
+    line-height:1; letter-spacing:-0.04em; max-width:1000px; margin:0 auto;
+  }
+  .ai-section h2 em {
+    font-style:italic;
+    background:linear-gradient(135deg,var(--accent2),var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .ai-section .desc { margin:40px auto 0; font-size:19px; color:var(--muted); max-width:640px; line-height:1.6; }
+  .ai-cards { margin:80px auto 0; max-width:1100px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  @media(max-width:900px){ .ai-cards{grid-template-columns:1fr} }
+  .ai-card {
+    background:rgba(255,255,255,0.03); border:1px solid var(--hairline2); border-radius:16px;
+    padding:32px 28px; text-align:left; transition:border-color 0.3s, background 0.3s;
+  }
+  .ai-card:hover { border-color:rgba(99,102,241,0.3); background:rgba(99,102,241,0.05); }
+  .ai-card h4 { font-size:16px; font-weight:600; margin-bottom:12px; letter-spacing:-0.01em; }
+  .ai-card p { font-size:14px; color:var(--muted); line-height:1.6; }
+
+  /* ENTERPRISE */
+  .enterprise { padding:160px 24px; background:var(--bg); border-top:1px solid var(--hairline); }
+  .enterprise .inner {
+    max-width:1200px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr; gap:100px; align-items:center;
+  }
+  @media(max-width:900px){ .enterprise .inner{grid-template-columns:1fr; gap:60px} }
+  .enterprise h2 { font-family:'Instrument Serif',serif; font-size:clamp(36px,4vw,60px); line-height:1.08; letter-spacing:-0.03em; margin:16px 0 28px; }
+  .enterprise h2 em { font-style:italic; color:var(--muted); }
+  .enterprise p { font-size:16px; color:var(--muted); line-height:1.65; margin-bottom:18px; }
+  .dashboard {
+    background:var(--surface); border:1px solid var(--hairline2); border-radius:20px; overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,0.5),0 0 40px rgba(99,102,241,0.05);
+  }
+  .dashboard-header { padding:20px 24px; border-bottom:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; }
+  .dashboard-header h4 { font-size:14px; font-weight:600; }
+  .dashboard-header .period { font-size:12px; color:var(--faint); font-family:'JetBrains Mono',monospace; }
+  .dashboard-body { padding:24px; }
+  .budget-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 0; border-bottom:1px solid var(--hairline); font-size:14px;
+  }
+  .budget-row:last-child { border-bottom:none; }
+  .budget-row .b-lbl { color:var(--muted); }
+  .budget-row .b-amt { font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .b-bar { width:100%; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; margin:10px 0 4px; overflow:hidden; }
+  .b-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 1.5s ease; }
+  .budget-row.highlight .b-amt { color:var(--accent3); font-weight:600; }
+  .budget-row.highlight .b-lbl { color:var(--fg); }
+  .dashboard-note { padding:14px 24px; background:rgba(6,182,212,0.06); border-top:1px solid rgba(6,182,212,0.12); font-size:12px; color:var(--accent3); font-family:'JetBrains Mono',monospace; }
+
+  /* TESTIMONIALS */
+  .testimonials { padding:160px 24px; background:var(--surface); border-top:1px solid var(--hairline); }
+  .testimonials .header { text-align:center; max-width:700px; margin:0 auto 80px; }
+  .testimonials h2 { font-family:'Instrument Serif',serif; font-size:clamp(36px,5vw,64px); line-height:1.05; letter-spacing:-0.03em; margin-top:16px; }
+  .testimonials h2 em { font-style:italic; color:var(--muted); }
+  .quotes-grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  @media(max-width:900px){ .quotes-grid{grid-template-columns:1fr} }
+  .quote {
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline); border-radius:16px;
+    padding:36px 32px; transition:border-color 0.3s, transform 0.3s;
+    display:flex; flex-direction:column;
+  }
+  .quote:hover { border-color:var(--hairline2); transform:translateY(-4px); }
+  .quote .q-mark { font-family:'Instrument Serif',serif; font-size:48px; line-height:1; color:var(--accent); opacity:0.4; margin-bottom:8px; }
+  .quote .text { font-family:'Instrument Serif',serif; font-size:20px; line-height:1.4; letter-spacing:-0.01em; flex:1; margin-bottom:24px; }
+  .quote .author { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--muted); }
+  .author-avatar {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600; color:#fff; flex-shrink:0;
+  }
+  .author strong { color:var(--fg); font-weight:500; display:block; margin-bottom:1px; }
+  .author span { font-size:12px; }
+
+  /* LEGAL NOTICE */
+  .legal-notice { max-width:1200px; margin:32px auto 0; padding:0 0; }
+  .legal-notice-inner {
+    border:1px solid rgba(68, 142, 239, 0.35); border-radius:16px;
+    background:rgba(239,68,68,0.04); padding:36px 40px;
+    position:relative;
+  }
+  .legal-body { font-size:14px; line-height:1.7; color:var(--muted); margin-bottom:24px; font-family: sans-serif; }
+  .legal-body strong { color:var(--fg); }
+  .legal-sig {
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    border-top:1px solid var(--hairline); padding-top:20px; font-size:13px; color:var(--muted);
+  }
+  .legal-sig strong { color:var(--fg); font-weight:600; display:block; margin-bottom:2px; }
+  .legal-badge { font-size:28px; opacity:0.6; }
+  .legal-footnote { font-size:11px; color:var(--faint); margin-top:16px; margin-bottom:0; font-style:italic; }
+
+  /* PRESS */
+  .press { padding:80px 24px; background:var(--bg); border-top:1px solid var(--hairline); text-align:center; }
+  .press .press-label { font-size:11px; color:var(--faint); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:36px; }
+  .press-logos { display:flex; justify-content:center; align-items:center; gap:56px; flex-wrap:wrap; }
+  .press-logo { font-size:15px; font-weight:700; color:var(--faint); letter-spacing:-0.02em; transition:color 0.3s; opacity:0.5; cursor:default; }
+  .press-logo:hover { color:var(--muted); opacity:1; }
+
+  /* CAREER SERVICES */
+  .career { padding:160px 24px; background:var(--bg); border-top:1px solid var(--hairline); }
+  .career .inner { max-width:1100px; margin:0 auto; }
+  .career .header { text-align:center; max-width:700px; margin:0 auto 72px; }
+  .career h2 { font-family:'Instrument Serif',serif; font-size:clamp(36px,5vw,68px); line-height:1.05; letter-spacing:-0.03em; margin-top:16px; }
+  .career h2 em { font-style:italic; color:var(--muted); }
+  .career .sub { margin-top:20px; font-size:17px; color:var(--muted); line-height:1.6; }
+  .career-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  @media(max-width:768px){ .career-grid{grid-template-columns:1fr} }
+  .career-card {
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline2); border-radius:20px;
+    padding:48px 44px; transition:border-color 0.3s, background 0.3s;
+  }
+  .career-card:hover { border-color:rgba(99,102,241,0.25); background:rgba(99,102,241,0.03); }
+  .career-card .c-icon {
+    width:52px; height:52px; border-radius:14px; font-size:24px;
+    background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.2);
+    display:flex; align-items:center; justify-content:center; margin-bottom:28px;
+  }
+  .career-card h3 { font-size:22px; font-weight:600; letter-spacing:-0.01em; margin-bottom:14px; }
+  .career-card p { font-size:15px; color:var(--muted); line-height:1.65; }
+  .career-banner {
+    margin-top:48px; padding:36px 48px;
+    border:1px solid rgba(6,182,212,0.2); border-radius:16px;
+    background:rgba(6,182,212,0.04);
+    display:flex; align-items:center; justify-content:space-between; gap:32px; flex-wrap:wrap;
+  }
+  .career-banner-text { font-size:18px; color:var(--fg); line-height:1.5; }
+  .career-banner-text strong { color:var(--accent3); }
+  .career-banner .btn-ghost { white-space:nowrap; border-color:rgba(6,182,212,0.3); color:var(--accent3); }
+  .career-banner .btn-ghost:hover { border-color:var(--accent3); color:var(--fg); }
+
+  /* FAQ */
+  .faq { padding:160px 24px; background:var(--surface); border-top:1px solid var(--hairline); }
+  .faq .inner { max-width:800px; margin:0 auto; }
+  .faq .header { text-align:center; margin-bottom:64px; }
+  .faq h2 { font-family:'Instrument Serif',serif; font-size:clamp(36px,5vw,60px); letter-spacing:-0.03em; margin-top:16px; }
+  .faq-item { border-bottom:1px solid var(--hairline); cursor:pointer; }
+  .faq-item:first-child { border-top:1px solid var(--hairline); }
+  .faq-q {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:24px 0; font-size:17px; font-weight:500; letter-spacing:-0.01em; gap:24px;
+  }
+  .faq-icon {
+    width:28px; height:28px; border-radius:50%;
+    border:1px solid var(--hairline2); display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:300; flex-shrink:0;
+    transition:transform 0.3s, background 0.3s, border-color 0.3s; color:var(--muted);
+  }
+  .faq-item.open .faq-icon { transform:rotate(45deg); background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.3); color:var(--accent); }
+  .faq-a { max-height:0; overflow:hidden; transition:max-height 0.45s ease, padding 0.45s ease; color:var(--muted); font-size:16px; line-height:1.65; }
+  .faq-item.open .faq-a { max-height:300px; padding-bottom:24px; }
+
+  /* CTA */
+  .cta-section { padding:200px 24px; text-align:center; background:var(--bg); position:relative; overflow:hidden; }
+  .cta-section::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center bottom,rgba(99,102,241,0.12) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .cta-section .inner { position:relative; }
+  .cta-section h2 { font-family:'Instrument Serif',serif; font-size:clamp(52px,9vw,130px); line-height:0.95; letter-spacing:-0.04em; margin-bottom:24px; }
+  .cta-section h2 em {
+    font-style:italic;
+    background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .cta-sub { font-size:18px; color:var(--muted); margin-bottom:52px; }
+
+  /* FOOTER */
+  footer { background:var(--surface); border-top:1px solid var(--hairline); padding:60px 24px 40px; }
+  footer .inner { max-width:1200px; margin:0 auto; }
+  .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; padding-bottom:48px; border-bottom:1px solid var(--hairline); }
+  @media(max-width:900px){ .footer-top{grid-template-columns:1fr 1fr} }
+  .footer-brand .logo { font-family:'Instrument Serif',serif; font-style:italic; font-size:22px; letter-spacing:-0.01em; margin-bottom:12px; }
+  .footer-brand p { font-size:13px; color:var(--faint); line-height:1.6; max-width:280px; }
+  .footer-col h5 { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .footer-col ul { list-style:none; }
+  .footer-col ul li { font-size:14px; color:var(--faint); margin-bottom:10px; cursor:pointer; transition:color 0.2s; }
+  .footer-col ul li:hover { color:var(--muted); }
+  .footer-bottom { padding-top:32px; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--faint); flex-wrap:wrap; gap:16px; }
+
+  /* REVEAL */
+  .reveal { opacity:0; transform:translateY(32px); transition:opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* GRID BG */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size:64px 64px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-left">
+      <div class="logo">Vaprware</div>
+      <div class="badge-series">Series A</div>
+    </div>
+    <ul>
+      <li>Platform</li>
+      <li>Enterprise</li>
+      <li>Research</li>
+      <li>Investors</li>
+      <li>About</li>
+      <li>Career Services</li>
+    </ul>
+    <a class="nav-cta" href="https://www.instagram.com/omrozh/" target="_blank" rel="noopener">Request Access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero grid-bg">
+  <canvas id="hero-canvas"></canvas>
+
+  <div class="hero-eyebrow">
+    <div class="dot"></div>
+    Stealth Mode &middot; Series A &middot; $47M Raised
+  </div>
+  <h1>Infrastructure for the<br><em>post-execution</em> enterprise.</h1>
+  <p class="sub">Vaprware helps forward-thinking organizations formalize their commitment to intentional non-delivery&nbsp;&mdash; building a defensible innovation posture without the operational overhead of a working product.</p>
+  <div class="cta-row">
+    <a class="btn-primary" href="https://www.instagram.com/omrozh/" target="_blank" rel="noopener">Request Early Access</a>
+    <a class="btn-ghost" href="#product">Read the Thesis &rsaquo;</a>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-stat">
+      <div class="val">340+</div>
+      <div class="key">Enterprises on Waitlist</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="val">0</div>
+      <div class="key">Production Incidents</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="val">100%</div>
+      <div class="key">Uptime</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-label">Trusted by teams at</div>
+  <div class="marquee-track">
+    <span>Meridian Group</span><span>Apex Industries</span><span>Fortuna Capital</span>
+    <span>Stratum Global</span><span>Kelmore &amp; Partners</span><span>Vantage Financial</span>
+    <span>Halloway Systems</span><span>Atlas Ventures</span><span>Crestwood Advisory</span>
+    <span>Pinnacle Dynamics</span>
+    <span>Meridian Group</span><span>Apex Industries</span><span>Fortuna Capital</span>
+    <span>Stratum Global</span><span>Kelmore &amp; Partners</span><span>Vantage Financial</span>
+    <span>Halloway Systems</span><span>Atlas Ventures</span><span>Crestwood Advisory</span>
+    <span>Pinnacle Dynamics</span><span>Every Company Name Claude Can Generate</span><span>Your Mom</span>
+  </div>
+</div>
+
+<!-- PRODUCT -->
+<section class="product reveal" id="product">
+  <div class="section-label">Platform Overview</div>
+  <h2>The last software relationship<br>you will never have to <em>maintain.</em></h2>
+  <div class="product-frame">
+    <div class="chrome-bar">
+      <div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div>
+      <div class="chrome-url">app.vaprware.com/dashboard</div>
+    </div>
+    <div class="frame-body">
+      <div class="frame-sidebar">
+        <div class="sidebar-item"></div>
+        <div class="sidebar-item" style="width:70%"></div>
+        <div class="sidebar-item" style="width:80%"></div>
+        <div class="sidebar-item" style="width:60%"></div>
+        <div class="sidebar-item" style="width:75%;margin-top:12px"></div>
+        <div class="sidebar-item" style="width:65%"></div>
+        <div class="sidebar-item" style="width:80%"></div>
+      </div>
+      <div class="frame-main">
+        <div class="frame-cards-row">
+          <div class="frame-metric"><div class="m-val">&mdash;</div><div class="m-lbl">Pending</div></div>
+          <div class="frame-metric"><div class="m-val">&mdash;</div><div class="m-lbl">Pending</div></div>
+          <div class="frame-metric"><div class="m-val">&mdash;</div><div class="m-lbl">Pending</div></div>
+        </div>
+        <div class="frame-card">
+          <div class="card-title"></div>
+          <div class="card-line"></div><div class="card-line"></div><div class="card-line"></div>
+        </div>
+        <div class="frame-card">
+          <div class="card-title"></div>
+          <div class="card-line"></div><div class="card-line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="product-caption">Vaprware Platform &middot; Preview Environment &middot; Access Pending Approval</div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="capabilities reveal">
+  <div class="inner">
+    <div class="header">
+      <div class="section-label">Core Capabilities</div>
+      <h2>Everything your organization needs.<br><em>Nothing it doesn&rsquo;t.</em></h2>
+      <p class="sub">Purpose-built for enterprises operating at the frontier of intentional ambiguity. A complete non-execution stack for the modern organization.</p>
+    </div>
+    <div class="cap-grid">
+      <div class="cap-item">
+        <div class="cap-icon">&#9672;</div>
+        <h3>Narrative Infrastructure</h3>
+        <p>Maintain a credible, board-reportable technology partnership without engineering overhead. Our documentation layer generates artifacts suitable for earnings calls, investor updates, and annual reports.</p>
+      </div>
+      <div class="cap-item">
+        <div class="cap-icon">&#11041;</div>
+        <h3>Strategic Budget Deployment</h3>
+        <p>Convert unallocated Q4 innovation funds into a trackable initiative with full supporting documentation. Prevents finance from reclaiming budget without the inconvenience of delivering anything.</p>
+      </div>
+      <div class="cap-item">
+        <div class="cap-icon">&#9678;</div>
+        <h3>Zero-Risk Innovation Layer</h3>
+        <p>Build your AI and digital transformation narrative on a foundation that cannot fail, because it does not execute. Our non-delivery guarantee is the most reliable guarantee in enterprise software.</p>
+      </div>
+      <div class="cap-item">
+        <div class="cap-icon">&#11039;</div>
+        <h3>Compliance Posture</h3>
+        <p>Vaprware has zero CVEs, zero data breaches, and zero compliance violations. Achieved through an architectural decision not to process, store, or transmit any data of any kind.</p>
+      </div>
+      <div class="cap-item">
+        <div class="cap-icon">&#9677;</div>
+        <h3>Vendor Relationship Management</h3>
+        <p>Our relationship team provides quarterly check-ins, executive briefings, and innovation summits&nbsp;&mdash; all fully decoupled from any underlying product activity.</p>
+      </div>
+      <div class="cap-item">
+        <div class="cap-icon">&#11042;</div>
+        <h3>Scalable Architecture</h3>
+        <p>Vaprware scales to any organization size with zero performance degradation. Our distributed non-system handles unlimited concurrent non-users without friction or cost.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="metrics reveal">
+  <div class="inner">
+    <div class="section-label">By the Numbers</div>
+    <h2>The most reliable platform<br>in enterprise <em>software.</em></h2>
+    <div class="metrics-grid">
+      <div class="metric-cell">
+        <div class="m-num" data-prefix="$" data-target="47" data-suffix="M">$47M</div>
+        <div class="m-lbl">Series A Raised</div>
+        <div class="m-note">Raised in the form of Iranian Reals from my buddy</div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-num">0</div>
+        <div class="m-lbl">Production Incidents</div>
+        <div class="m-note">All time, across all environments</div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-num" data-target="340" data-suffix="+">340+</div>
+        <div class="m-lbl">Enterprises on Waitlist</div>
+        <div class="m-note">None have been granted access yet</div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-num">100%</div>
+        <div class="m-lbl">Customer Retention</div>
+        <div class="m-note">Calculated across active customer base</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how reveal">
+  <div class="inner">
+    <div class="header">
+      <div class="section-label">Process</div>
+      <h2>How Vaprware <em>works.</em></h2>
+      <p class="sub">A structured engagement model designed to minimize time-to-value by redefining what value means in a technology partnership context.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">STEP 01</div>
+        <h3>Engage</h3>
+        <p>Your leadership team initiates a strategic dialogue with Vaprware through our waitlist. We conduct a discovery session to understand your organizational context, innovation mandate, and Q4 budget position.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP 02</div>
+        <h3>Align</h3>
+        <p>We co-develop a joint innovation narrative aligned to your organizational priorities. A strategic brief is produced, suitable for internal stakeholders, board presentations, and external communications. This is the deliverable.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP 03</div>
+        <h3>Report</h3>
+        <p>Your team gains an active technology partnership to reference across reporting cycles. We provide quarterly briefings, an executive relationship, and documentation confirming the ongoing strategic engagement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section class="ai-section reveal">
+  <div class="inner">
+    <div class="ai-tag">&#10022; AI-Native Architecture</div>
+    <h2>Powered by<br><em>artificial intelligence.</em></h2>
+    <p class="desc">I mean obviously I wouldn't actually waste my time building this website this fancy, this is (mostly) AI generated, I just added these little comments around the website.</p>
+    <div class="ai-cards">
+      <div class="ai-card">
+        <h4>Predictive Non-Execution Engine</h4>
+        <p>Identifies high-risk implementation paths before they are initiated, and recommends not initiating them. Integrates with your existing planning stack via an API that has never been called.</p>
+      </div>
+      <div class="ai-card">
+        <h4>Strategic Optionality Preservation</h4>
+        <p>Our models quantify the value of remaining uncommitted. By not building, organizations preserve maximum strategic flexibility for a future where they might not build differently.</p>
+      </div>
+      <div class="ai-card">
+        <h4>Intelligent Reporting Layer</h4>
+        <p>Automatically generates progress updates, innovation summaries, and technical roadmaps based on our ongoing non-activity. Keeps stakeholders informed with zero engineering input required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENTERPRISE -->
+<section class="enterprise reveal">
+  <div class="inner">
+    <div>
+      <div class="section-label">For Enterprise</div>
+      <h2>Solving the enduring problem of<br><em>undeployed capital.</em></h2>
+      <p>Your organization has unspent innovation budget. If not deployed by Q4, finance will reclaim it &mdash; and reduce next year&rsquo;s allocation accordingly. This is a structural problem affecting procurement and technology leadership at every enterprise we have spoken with.</p>
+      <p>Vaprware offers a recognized vendor relationship that satisfies budget deployment requirements, generates documentation for internal reporting, and carries no risk of implementation failure, cost overrun, or scope creep.</p>
+      <p>Because we do not build anything, your investment cannot underperform against expectations. There are no expectations. This is, we would argue, the cleanest risk profile in enterprise software.</p>
+    </div>
+    <div class="dashboard">
+      <div class="dashboard-header">
+        <h4>Innovation Budget &middot; Q4 Overview</h4>
+        <div class="period">FY2026</div>
+      </div>
+      <div class="dashboard-body">
+        <div class="budget-row">
+          <span class="b-lbl">Total Allocated</span>
+          <span class="b-amt">$847,000</span>
+        </div>
+        <div class="b-bar"><div class="b-fill" style="width:100%"></div></div>
+        <div class="budget-row">
+          <span class="b-lbl">Deployed (Existing Vendors)</span>
+          <span class="b-amt">$612,000</span>
+        </div>
+        <div class="b-bar"><div class="b-fill" style="width:72%"></div></div>
+        <div class="budget-row">
+          <span class="b-lbl">Undeployed &middot; At Risk of Clawback</span>
+          <span class="b-amt" style="color:#ef4444">$235,000</span>
+        </div>
+        <div class="b-bar"><div class="b-fill" style="width:28%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
+        <div class="budget-row highlight">
+          <span class="b-lbl">Recommended: Vaprware Allocation</span>
+          <span class="b-amt">$235,000</span>
+        </div>
+        <div class="b-bar"><div class="b-fill" style="width:28%"></div></div>
+        <div class="budget-row">
+          <span class="b-lbl">Residual Exposure</span>
+          <span class="b-amt">$0</span>
+        </div>
+      </div>
+      <div class="dashboard-note">&#10003; Risk of implementation failure: 0%</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials reveal">
+  <div class="header">
+    <div class="section-label">Customer Voice</div>
+    <h2>What people are <em>saying.</em></h2>
+  </div>
+  <div class="quotes-grid">
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">Dude that is totally mad.</div>
+      <div class="author">
+        <div class="author-avatar">S</div>
+        <div><strong>My buddy Steve</strong><span>Friend</span></div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">We are late for dinner, can you continue to explain at the restaurant?</div>
+      <div class="author">
+        <div class="author-avatar">&#9825;</div>
+        <div><strong>My girlfriend</strong><span>Significant Other</span></div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">Who are you and where did you get my number.</div>
+      <div class="author">
+        <div class="author-avatar">SH</div>
+        <div><strong>Steve Harvey</strong><span>Television Personality</span></div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">When will you stop wasting your time on shenanigans and go get a real job?</div>
+      <div class="author">
+        <div class="author-avatar">D</div>
+        <div><strong>My Dad</strong><span>He meant it literally</span></div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">Dude, it is massive</div>
+      <div class="author">
+        <div class="author-avatar">N</div>
+        <div><strong>Ninja</strong><span>Internet Personality</span></div>
+      </div>
+    </div>
+    <div class="quote">
+      <div class="q-mark">&ldquo;</div>
+      <div class="text">Equality before law is a bad idea</div>
+      <div class="author">
+        <div class="author-avatar">u/</div>
+        <div><strong>u/Sensitive_Echidna370</strong><span>Reddit User</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legal-notice reveal">
+    <div class="legal-notice-inner">
+      <p class="legal-body">
+        "This letter serves as formal notice that your unauthorized use of Mr. Harvey's name constitutes a <strong>willful violation of his right of publicity</strong> under applicable state and federal law. Mr. Harvey has not endorsed, affiliated with, or in any way associated himself with your product, service, or whatever it is you're calling this. You are hereby demanded to immediately cease and desist all use of Mr. Harvey's name, image, likeness, and the quote "Who are you and where did you get my number," which was a private communication made under circumstances you are fully aware of."
+      </p>
+      <div class="legal-sig">
+        <div>
+          <strong>Steve Harvey's Lawyer</strong><br>
+          <span>Asking us to remove the fake Steve Harvey testimonial</span>
+        </div>
+      </div>
+      <p class="legal-footnote">* This notice was placed on this website by the website owner, not by Steve Harvey's legal team. We are complying preemptively.</p>
+    </div>
+  </div>
+
+  <div class="legal-notice reveal" style="margin-top:16px;">
+    <div class="legal-notice-inner" style="border-color:rgba(99,102,241,0.35);background:rgba(99,102,241,0.04);">
+      <p class="legal-body">
+        <strong>A genuine note to Steve Harvey and Ninja:</strong> No legal team required here &mdash; I genuinely enjoy your content and have a lot of respect for what you both have built. Your appearances on this site are offered in the spirit of sincere admiration, not exploitation. If you would prefer to be removed, a quick DM is all it takes and it will be done immediately, no questions asked.
+      </p>
+      <div class="legal-sig">
+        <div>
+          <strong>The Founder</strong><br>
+          <span>Acting in good faith, for once</span>
+        </div>
+        <div class="legal-badge">🤝</div>
+      </div>
+      <p class="legal-footnote">* Instagram: <a href="https://www.instagram.com/omrozh/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@omrozh</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- PRESS -->
+<section class="press reveal">
+  <div class="press-label">As mentioned in</div>
+  <div class="press-logos">
+    <div class="press-logo">Reddit</div>
+    <div class="press-logo">Twitter</div>
+    <div class="press-logo">Instagram</div>
+    <div class="press-logo">YouTube</div>
+    <div class="press-logo">Facebook</div>
+    <div class="press-logo">TikTok</div>
+  </div>
+</section>
+
+<!-- CAREER SERVICES -->
+<section class="career reveal">
+  <div class="inner">
+    <div class="header">
+      <div class="section-label">Career Services</div>
+      <h2>Between opportunities?<br><em>We can help.</em></h2>
+      <p class="sub">Vaprware is proud to offer a professional reference program for individuals currently navigating the job market. List us. We will confirm everything.</p>
+    </div>
+    <div class="career-grid">
+      <div class="career-card">
+        <div class="c-icon">&#128203;</div>
+        <h3>List Us as an Employer</h3>
+        <p>Add Vaprware to your CV under any title you feel reflects your seniority. We cannot contradict this, as we have no record of anyone doing anything here. Our HR system has never been accessed. Our HR system does not exist.</p>
+      </div>
+      <div class="career-card">
+        <div class="c-icon">&#128222;</div>
+        <h3>Reference Verification</h3>
+        <p>When a prospective employer calls to verify your tenure, our reference team will confirm that you worked at Vaprware and that, consistent with all other activity at this organization, you did nothing. We consider this a glowing endorsement.</p>
+      </div>
+      <div class="career-card">
+        <div class="c-icon">&#9733;</div>
+        <h3>Any Title. Any Duration.</h3>
+        <p>We are not in a position to dispute your employment dates, your role, or your contributions. All roles at Vaprware are defined by the absence of deliverables, which means every title is technically accurate. We suggest something senior.</p>
+      </div>
+      <div class="career-card">
+        <div class="c-icon">&#128200;</div>
+        <h3>Impeccable Track Record</h3>
+        <p>No former Vaprware employee has ever shipped a bug, missed a deadline, or caused a production incident. This is because no former Vaprware employee has ever shipped anything. Your record here will be spotless. Provably.</p>
+      </div>
+    </div>
+    <div class="career-banner">
+      <div class="career-banner-text">
+        Currently unemployed? <strong>List us.</strong> We will confirm that you were indeed here, and that you did, with great consistency, absolutely nothing &mdash; just like everyone else.
+      </div>
+      <a class="btn-ghost" href="https://www.instagram.com/omrozh/" target="_blank" rel="noopener">Register as Alumni &rsaquo;</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq reveal">
+  <div class="inner">
+    <div class="header">
+      <div class="section-label">FAQ</div>
+      <h2>Frequently asked questions.</h2>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What does Vaprware do? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Vaprware operates at the intersection of enterprise software and organizational philosophy. We are in a product-definition phase which we have found to be an indefinitely productive space. Our focus is on the narrative and strategic layer, which most software companies neglect in favor of engineering.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is the end game? <span class="faq-icon">+</span></div>
+      <div class="faq-a">IDK maybe if this goes viral we put AdSense here or some people actually start paying us because it is funny, worst case we turn this into a crypto scam.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is there a demo available? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Live product demonstrations are not currently available. We find that demos create specific expectations which constrain the possibility space of a partnership. Our discovery conversations are deliberately expectation-free, which customers consistently describe as a differentiator.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How is my investment protected? <span class="faq-icon">+</span></div>
+      <div class="faq-a">The primary risk in any technology investment is implementation failure. Vaprware has achieved a zero percent implementation failure rate by operating upstream of the implementation phase. Your capital is protected by the structural impossibility of operational failure.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What stage is Vaprware at? <span class="faq-icon">+</span></div>
+      <div class="faq-a">We are in a deliberate, pre-product stealth phase. We consider this less a stage than a permanent strategic orientation. Some organizations treat stealth as a temporary pre-launch posture. We have taken the view that the stealth phase is often the most valuable phase, and have chosen to remain in it indefinitely.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How does Vaprware compare to competitors? <span class="faq-icon">+</span></div>
+      <div class="faq-a">No other enterprise software vendor has successfully productized the absence of a product. We operate in an uncontested market. There are no direct competitors, which our investors have noted is an exceptionally strong moat.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is this an Israeli Psy-Op? <span class="faq-icon">+</span></div>
+      <div class="faq-a">No, they do not sponsor random websites, but if they pay me it can be.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is this a scam? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Hopefully, eventually.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is this a KGB Psy-Op? <span class="faq-icon">+</span></div>
+      <div class="faq-a">KGB doesn't exist anymore.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is this a CIA Psy-Op? <span class="faq-icon">+</span></div>
+      <div class="faq-a">It can be if they can get me an American citizenship</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section reveal" id="cta">
+  <div class="inner">
+    <h2>Begin your<br>strategic <em>allocation.</em></h2>
+    <p class="cta-sub">Join 340+ enterprises already not using Vaprware.</p>
+    <a class="btn-primary" href="https://www.instagram.com/omrozh/" target="_blank" rel="noopener" style="font-size:16px;padding:16px 36px;">Request Early Access &rsaquo;</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">Vaprware</div>
+        <p>Permanently in stealth mode by design. All forward-looking statements on this site refer to the absence of any future activity. Allocations accepted on a strategic basis.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li>Overview</li><li>Capabilities</li><li>Architecture</li><li>Security</li><li>Integrations</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li>About</li><li>Investors</li><li>Research</li><li>Press</li><li>Careers</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li>Documentation</li><li>API Reference</li><li>Status</li><li>Changelog</li><li>Contact</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright &copy; 2026 Vaprware, Inc. All rights reserved.</span>
+      <span style="display:flex;gap:24px"><span>Privacy Policy</span><span>Terms of Service</span><span>Security</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Particle canvas
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < 55; i++) {
+    particles.push({
+      x: Math.random() * (canvas.width || window.innerWidth),
+      y: Math.random() * (canvas.height || window.innerHeight),
+      r: Math.random() * 1.5 + 0.3,
+      dx: (Math.random() - 0.5) * 0.25,
+      dy: (Math.random() - 0.5) * 0.25,
+      opacity: Math.random() * 0.35 + 0.08
+    });
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(139,92,246,' + p.opacity + ')';
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // Counter animation
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    if (!target) return;
+    let startTime = null;
+    const duration = 2200;
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      el.textContent = prefix + Math.floor(ease(progress) * target) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = prefix + target + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Bar animation
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.b-fill').forEach(bar => {
+          const w = bar.style.width;
+          bar.style.width = '0%';
+          requestAnimationFrame(() => setTimeout(() => { bar.style.width = w; }, 80));
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.dashboard').forEach(el => barObserver.observe(el));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
